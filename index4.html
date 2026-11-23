@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>معرض الأعمال | عبدالرحمن الطحان</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090a0d;
+      --surface: rgba(20, 22, 29, 0.78);
+      --surface-solid: #14161d;
+      --surface-hover: rgba(28, 31, 41, 0.92);
+      --ember: #e87a3e;
+      --ember-glow: rgba(232, 122, 62, 0.35);
+      --gold: #f3b26b;
+      --text-main: #f5f6f8;
+      --text-muted: #9ea4b2;
+      --border: rgba(255, 255, 255, 0.09);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 122, 62, 0.13) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.3s ease;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(9, 10, 13, 0.72);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 0;
+      gap: 12px;
+    }
+
+    .logo {
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--ember);
+      box-shadow: 0 0 12px var(--ember);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.65; }
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--ember), #cf5c22);
+      color: #fff;
+      box-shadow: 0 8px 24px -6px var(--ember-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -4px var(--ember-glow);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--ember);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .hero {
+      padding: 84px 0 48px;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(232, 122, 62, 0.12);
+      border: 1px solid rgba(232, 122, 62, 0.3);
+      color: var(--gold);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(120deg, var(--ember), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 30px;
+      font-size: 1.05rem;
+    }
+
+    .hero-btns {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .portfolio-section {
+      padding: 36px 0 80px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-main);
+      border-color: rgba(232, 122, 62, 0.4);
+    }
+
+    .filter-btn.active {
+      background: var(--ember);
+      border-color: var(--ember);
+      color: #fff;
+      box-shadow: 0 6px 18px -4px var(--ember-glow);
+    }
+
+    .work-count {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 26px;
+    }
+
+    .work-card {
+      position: relative;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform-style: preserve-3d;
+      transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .work-card:hover {
+      border-color: rgba(232, 122, 62, 0.55);
+      box-shadow: 0 22px 45px -15px rgba(0, 0, 0, 0.7), 0 0 25px -10px var(--ember-glow);
+    }
+
+    .work-media {
+      position: relative;
+      height: 210px;
+      overflow: hidden;
+    }
+
+    .work-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .work-card:hover .work-media img {
+      transform: scale(1.07);
+    }
+
+    .work-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(9, 10, 13, 0.85), transparent 55%);
+    }
+
+    .work-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(110, 231, 183, 0.35);
+    }
+
+    .work-content {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .work-category {
+      font-size: 0.74rem;
+      color: var(--ember);
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    .work-content h2 {
+      font-size: 1.32rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .work-content p {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    .work-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+
+    .work-pills span {
+      font-size: 0.76rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #d1d5db;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .work-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .link-btn:hover {
+      color: var(--ember);
+      transform: translateX(-3px);
+    }
+
+    .link-sub {
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .link-sub:hover {
+      color: var(--gold);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-box {
+      width: min(560px, 100%);
+      background: var(--surface-solid);
+      border: 1px solid rgba(232, 122, 62, 0.35);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .close-modal {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-main);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .close-modal:hover {
+      background: var(--ember);
+    }
+
+    .modal-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 26px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 64px 0 36px;
+      }
+      .btn {
+        padding: 10px 16px;
+        font-size: 0.86rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <header>
+    <div class="container nav">
+      <a href="#" class="logo">
+        <span class="dot"></span>
+        <span>معرض الأعمال</span>
+      </a>
+      <div class="nav-actions">
+        <a href="https://a-al-tahan.github.io/my-cv/" target="_blank" class="btn btn-ghost">السيرة الذاتية</a>
+        <a href="https://wa.me/966570360129" target="_blank" class="btn btn-primary">تواصل معي</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-tag mono">&lt;/&gt; SELECTED WORKS</div>
+      <h1>أعمال <span>عبدالرحمن الطحان</span></h1>
+      <p>مجموعة مختارة من المشاريع والواجهات الرقمية التي أعمل عليها؛ تجمع بين وضوح التصميم، سلاسة التصفح، والتجربة التفاعلية.</p>
+      <div class="hero-btns">
+        <a href="#works" class="btn btn-primary">استعرض الأعمال (3)</a>
+        <a href="https://github.com/A-AL-tahan" target="_blank" class="btn btn-ghost mono">GitHub @A-AL-tahan</a>
+      </div>
+    </section>
+
+    <section id="works" class="portfolio-section">
+      <div class="toolbar">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">الكل (3)</button>
+          <button class="filter-btn" data-filter="live">منشور حي (3)</button>
+        </div>
+        <span class="work-count mono" id="workCount">Showing 3 / 3</span>
+      </div>
+
+      <div class="works-grid" id="worksGrid">
+        <!-- العمل 1: مطعم جمر -->
+        <article class="work-card" data-type="live" data-id="jamr">
+          <div class="work-media">
+            <span class="work-badge badge-live">منشور حي</span>
+            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80" alt="جمر مطعم ستيك فاخر">
+          </div>
+          <div class="work-content">
+            <span class="work-category mono">RESTAURANT WEBSITE</span>
+            <h2>جمر | مطعم ستيك فاخر</h2>
+            <p>موقع مطعم مشويات وستيك على الفحم يعرض الأطباق والأسعار مع تصفية فورية لقائمة الطعام وحجز سريع عبر واتساب.</p>
+            <div class="work-pills mono">
+              <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Menu Filter</span>
+            </div>
+            <div class="work-actions">
+              <button class="link-btn open-modal" data-project="jamr">تفاصيل العمل ←</button>
+              <a href="https://a-al-tahan.github.io/My-Restaurant/" target="_blank" class="link-sub">فتح الموقع</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- العمل 2: يومي (my-day) -->
+        <article class="work-card" data-type="live" data-id="myday">
+          <div class="work-media">
+            <span class="work-badge badge-live">منشور حي</span>
+            <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=900&q=80" alt="يومي لتنظيم الجدول اليومي">
+          </div>
+          <div class="work-content">
+            <span class="work-category mono">DAILY SCHEDULE APP</span>
+            <h2>يومي | تنظيم الجدول اليومي</h2>
+            <p>صفحة وتطبيق ويب لتنظيم المهام والجدول اليومي بشكل واضح ومنسق لمتابعة اليوم بسهولة.</p>
+            <div class="work-pills mono">
+              <span>Schedule</span><span>HTML</span><span>CSS</span><span>JavaScript</span>
+            </div>
+            <div class="work-actions">
+              <button class="link-btn open-modal" data-project="myday">تفاصيل العمل ←</button>
+              <a href="https://a-al-tahan.github.io/my-day/" target="_blank" class="link-sub">فتح الموقع</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- العمل 3: ديلي برو -->
+        <article class="work-card" data-type="live" data-id="dailybrew">
+          <div class="work-media">
+            <span class="work-badge badge-live">منشور حي</span>
+            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80" alt="ديلي برو كوفي شوب">
+          </div>
+          <div class="work-content">
+            <span class="work-category mono">COFFEE SHOP WEBSITE</span>
+            <h2>ديلي برو (Daily Brew)</h2>
+            <p>موقع مقهى مختص يعرض المشروبات الساخنة والباردة والتقطير مع تصفية للقائمة وعروض يومية وطلب مباشر.</p>
+            <div class="work-pills mono">
+              <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Menu UI</span>
+            </div>
+            <div class="work-actions">
+              <button class="link-btn open-modal" data-project="dailybrew">تفاصيل العمل ←</button>
+              <a href="https://a-al-tahan.github.io/Daily-Brew/" target="_blank" class="link-sub">فتح الموقع</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal-box">
+      <img src="" alt="" class="modal-img" id="modalImg">
+      <div class="modal-body">
+        <div class="modal-top">
+          <span class="work-category mono" id="modalCat"></span>
+          <button class="close-modal" id="closeModal" aria-label="إغلاق">×</button>
+        </div>
+        <h3 id="modalTitle" style="font-size: 1.45rem; margin-bottom: 10px;"></h3>
+        <p id="modalDesc" style="color: var(--text-muted); font-size: 0.95rem;"></p>
+        <div class="modal-links" id="modalLinks"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      عبدالرحمن الطحان — معرض الأعمال
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const mouse = { x: null, y: null, radius: 130 };
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2.2 + 0.8;
+        this.vx = (Math.random() - 0.5) * 0.55;
+        this.vy = (Math.random() - 0.5) * 0.55;
+        this.alpha = Math.random() * 0.5 + 0.2;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < mouse.radius) {
+            this.x -= dx * 0.015;
+            this.y -= dy * 0.015;
+          }
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232, 122, 62, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      const count = Math.min(70, Math.floor((canvas.width * canvas.height) / 22000));
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+    }
+    initParticles();
+    window.addEventListener('resize', initParticles);
+
+    function animateBg() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+        for (let j = i + 1; j < particles.length; j++) {
+          const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+          if (dist < 115) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(232, 122, 62, ${0.11 * (1 - dist / 115)})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateBg);
+    }
+    animateBg();
+
+    const glow = document.getElementById('cursorGlow');
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      glow.style.left = `${e.clientX}px`;
+      glow.style.top = `${e.clientY}px`;
+    });
+
+    document.querySelectorAll('.work-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `perspective(900px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateY(-4px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateY(0)';
+      });
+    });
+
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.work-card');
+    const workCount = document.getElementById('workCount');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        let visible = 0;
+
+        cards.forEach(card => {
+          const match = filter === 'all' || card.dataset.type === filter;
+          card.style.display = match ? 'flex' : 'none';
+          if (match) visible++;
+        });
+
+        workCount.textContent = `Showing ${visible} / ${cards.length}`;
+      });
+    });
+
+    const projectsData = {
+      jamr: {
+        cat: 'RESTAURANT WEBSITE',
+        title: 'جمر | مطعم ستيك فاخر',
+        desc: 'موقع متكامل لمطعم ستيك ومشويات على الفحم يضم صوراً للأطباق، أقسام قائمة متنوعة مع تصفية فورية، ورابط حجز مباشر عبر واتساب.',
+        img: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+        links: [
+          { label: 'معاينة الموقع الحي', url: 'https://a-al-tahan.github.io/My-Restaurant/', primary: true },
+          { label: 'مستودع GitHub', url: 'https://github.com/A-AL-tahan/My-Restaurant', primary: false }
+        ]
+      },
+      myday: {
+        cat: 'DAILY SCHEDULE APP',
+        title: 'يومي | تنظيم الجدول اليومي',
+        desc: 'صفحة وتطبيق ويب لتنظيم المهام والجدول اليومي بشكل واضح ومنسق لمتابعة اليوم بسهولة.',
+        img: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=900&q=80',
+        links: [
+          { label: 'معاينة الموقع الحي', url: 'https://a-al-tahan.github.io/my-day/', primary: true },
+          { label: 'مستودع GitHub', url: 'https://github.com/A-AL-tahan/my-day', primary: false }
+        ]
+      },
+      dailybrew: {
+        cat: 'COFFEE SHOP WEBSITE',
+        title: 'ديلي برو (Daily Brew)',
+        desc: 'موقع مقهى مختص يعرض المشروبات الساخنة والباردة والتقطير مع تصفية للقائمة وعروض يومية وطلب مباشر.',
+        img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80',
+        links: [
+          { label: 'معاينة الموقع الحي', url: 'https://a-al-tahan.github.io/Daily-Brew/', primary: true },
+          { label: 'مستودع GitHub', url: 'https://github.com/A-AL-tahan/Daily-Brew', primary: false }
+        ]
+      }
+    };
+
+    const backdrop = document.getElementById('modalBackdrop');
+    const closeModal = document.getElementById('closeModal');
+
+    document.querySelectorAll('.open-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const data = projectsData[btn.dataset.project];
+        if (!data) return;
+
+        document.getElementById('modalImg').src = data.img;
+        document.getElementById('modalCat').textContent = data.cat;
+        document.getElementById('modalTitle').textContent = data.title;
+        document.getElementById('modalDesc').textContent = data.desc;
+
+        const linksContainer = document.getElementById('modalLinks');
+        linksContainer.innerHTML = '';
+        data.links.forEach(l => {
+          const a = document.createElement('a');
+          a.href = l.url;
+          a.target = '_blank';
+          a.className = `btn ${l.primary ? 'btn-primary' : 'btn-ghost'}`;
+          a.textContent = l.label;
+          linksContainer.appendChild(a);
+        });
+
+        backdrop.classList.add('open');
+      });
+    });
+
+    closeModal.addEventListener('click', () => backdrop.classList.remove('open'));
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.classList.remove('open');
+    });
+  </script>
+</body>
+</html>
